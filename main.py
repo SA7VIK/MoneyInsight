@@ -12,8 +12,15 @@ load_dotenv()
 
 app = FastAPI(title="Investment Allocation API")
 
-# Initialize Groq client
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# Initialize Groq client with error handling
+try:
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY environment variable is not set")
+    client = Groq(api_key=api_key)
+except Exception as e:
+    print(f"Error initializing Groq client: {str(e)}")
+    client = None
 
 # Hardcoded market trends
 MARKET_TRENDS = {
@@ -74,6 +81,9 @@ def extract_json_from_text(text):
 
 @app.post("/allocate-investment", response_model=InvestmentResponse)
 async def allocate_investment(request: InvestmentRequest):
+    if not client:
+        raise HTTPException(status_code=500, detail="Groq client not initialized properly")
+        
     try:
         # Prepare the market trends section
         market_trends_text = "\n".join([f"- {asset}: {trend}" for asset, trend in MARKET_TRENDS.items()])

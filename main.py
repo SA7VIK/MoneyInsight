@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import groq
 import os
 from dotenv import load_dotenv
-from typing import Optional
+from typing import Optional, Dict
 import json
 import re
 import httpx
@@ -12,6 +14,9 @@ import httpx
 load_dotenv()
 
 app = FastAPI(title="Investment Allocation API")
+
+# Mount the static directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Initialize Groq client with error handling
 try:
@@ -153,8 +158,8 @@ async def allocate_investment(request: InvestmentRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
-async def root():
-    return {"message": "Welcome to the Investment Allocation API"}
+async def read_root():
+    return FileResponse("static/index.html")
 
 if __name__ == "__main__":
     import uvicorn

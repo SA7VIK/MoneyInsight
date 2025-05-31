@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from groq import Groq
+import groq
 import os
 from dotenv import load_dotenv
 from typing import Optional
@@ -17,7 +17,7 @@ try:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY environment variable is not set")
-    client = Groq(api_key=api_key)
+    client = groq.Client(api_key=api_key)
 except Exception as e:
     print(f"Error initializing Groq client: {str(e)}")
     client = None

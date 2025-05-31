@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from typing import Optional
 import json
 import re
+import httpx
 
 # Load environment variables
 load_dotenv()
@@ -17,7 +18,10 @@ try:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY environment variable is not set")
-    client = groq.Client(api_key=api_key)
+    
+    # Create a custom httpx client without proxies
+    http_client = httpx.Client(timeout=30.0)
+    client = groq.Client(api_key=api_key, http_client=http_client)
 except Exception as e:
     print(f"Error initializing Groq client: {str(e)}")
     client = None
